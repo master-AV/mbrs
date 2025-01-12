@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
+import org.apache.xpath.operations.String;
+
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapperBuilder;
 import freemarker.template.Template;
@@ -68,6 +70,9 @@ public abstract class BasicGenerator {
 							"An error occurred during folder creation " + outputPath);
 			}
 		} catch (IOException e) {
+			// Viki: bitno!!! nije svaka greska ispravna sto javi Magic Draw
+			// postavite -verbose i tek tad ce ovo da ispise gresku u konzoli!!
+			e.printStackTrace();
 			throw new IOException("Can't find template " + tName + ".", e);
 		}
 

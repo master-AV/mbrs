@@ -10,14 +10,17 @@ import java.util.Set;
 
 import javax.swing.JOptionPane;
 
+import org.apache.xpath.operations.String;
+
 import freemarker.template.TemplateException;
 import myplugin.generator.fmmodel.FMClass;
 import myplugin.generator.fmmodel.FMEnumeration;
 import myplugin.generator.fmmodel.FMModel;
 import myplugin.generator.options.GeneratorOptions;
 
-public class ContextGenerator {// extends BasicGenerator {
-/*
+// Viki: generator - koji gde odredimo context nad kojem radimo generisanje -- radi generisanje
+public class ContextGenerator extends BasicGenerator {
+
 	public ContextGenerator(GeneratorOptions generatorOptions) {
 		super(generatorOptions);
 	}
@@ -34,34 +37,24 @@ public class ContextGenerator {// extends BasicGenerator {
 			List<FMClass> classes = FMModel.getInstance().getClasses();
 			Map<String, Object> context = new HashMap<String, Object>();
 			
+			// Viki: popunjavanje contexta
 			Set<Object> classesSet = new HashSet<Object>();
 			for (int i = 0; i < classes.size(); i++) {
 				FMClass cl = classes.get(i);
-				Writer out;
 				Map<String, Object> innerContext = new HashMap<String, Object>();
-				//try {
-					out = getWriter(cl.getName(), cl.getTypePackage());
-					if (out != null) {
-						//context.clear();
-						innerContext.put("class", cl);
-						innerContext.put("properties", cl.getProperties());
-						innerContext.put("importedPackages", cl.getImportedPackages());
-						classesSet.add(innerContext);
-						//getTemplate().process(context, out);
-						out.flush();
-					}
-				//} catch (TemplateException e) {
-				//	JOptionPane.showMessageDialog(null, e.getMessage());
-				//} catch (IOException e) {
-					//JOptionPane.showMessageDialog(null, e.getMessage());
-				//}
+				innerContext.put("class", cl);
+				innerContext.put("properties", cl.getProperties());
+				innerContext.put("importedPackages", cl.getImportedPackages());
+				classesSet.add(innerContext);
 			}
 			
 			context.put("classes", classesSet);
 			Writer out;
+			//JOptionPane.showMessageDialog(null, "Path " + classes.get(0).getTypePackage());
+			//JOptionPane.showMessageDialog(null, "Path " + classes.get(0).getName());
 			out = getWriter("Databaseontext", classes.get(0).getTypePackage());
 			getTemplate().process(context, out);
-		out.flush();
+			out.flush();
 		} catch (TemplateException e) {
 			JOptionPane.showMessageDialog(null, e.getMessage());
 			e.printStackTrace();
@@ -69,5 +62,5 @@ public class ContextGenerator {// extends BasicGenerator {
 			JOptionPane.showMessageDialog(null, e.getMessage());
 			e.printStackTrace();
 		}
-	}*/
+	}
 }

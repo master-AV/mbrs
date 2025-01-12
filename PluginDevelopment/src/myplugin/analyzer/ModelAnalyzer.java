@@ -3,10 +3,13 @@ package myplugin.analyzer;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.xpath.operations.String;
+
 import myplugin.generator.fmmodel.FMClass;
 import myplugin.generator.fmmodel.FMEnumeration;
 import myplugin.generator.fmmodel.FMModel;
 import myplugin.generator.fmmodel.FMProperty;
+import myplugin.generator.options.Resources;
 
 import com.nomagic.uml2.ext.jmi.helpers.ModelHelper;
 import com.nomagic.uml2.ext.jmi.helpers.StereotypesHelper;
@@ -17,7 +20,7 @@ import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Enumeration;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Property;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Type;
-
+import com.nomagic.uml2.ext.magicdraw.mdprofiles.Stereotype;
 
 /** Model Analyzer takes necessary metadata from the MagicDraw model and puts it in 
  * the intermediate data structure (@see myplugin.generator.fmmodel.FMModel) optimized
@@ -27,7 +30,7 @@ import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Type;
  * @ToDo: Enhance (or completely rewrite) myplugin.generator.fmmodel classes and  
  * Model Analyzer methods in order to support GUI generation. */ 
 
-
+// Viki: zavisno od toga koji deo modela postavimo mozemo da dodajemo razlicite analyzere
 public class ModelAnalyzer {	
 	//root model package
 	protected Package root;
@@ -130,11 +133,45 @@ public class ModelAnalyzer {
 		int lower = p.getLower();
 		int upper = p.getUpper();
 		
-		FMProperty prop = new FMProperty(attName, typeName, p.getVisibility().toString(), 
-				lower, upper);
+		FMProperty prop = new FMProperty(attName, typeName, p.getVisibility().toString(), lower, upper);
+
+		// Obrada property-ja
+		// Viki: obradom modela dodelimo nasim klasma kao FMProperty dodatne obelezlje
+		if (StereotypesHelper.getAppliedStereotypeByString(p, Resources.UI_PROPERTY) != null) {
+			Stereotype propStereotype = StereotypesHelper.getAppliedStereotypeByString(p, Resources.UI_PROPERTY);
+
+			prop.setRequired(Boolean.valueOf(getTagValue(p, propStereotype, "required")));
+			prop.setPrecision(parseInt(getTagValue(p, propStereotype, "precision")));
+			prop.setLength(parseInt(getTagValue(p, propStereotype, "length")));
+			if (attType.has_associationOfEndType()) {
+				prop.setReferenced(true);
+				Property oppositeProperty = p.getOpposite();
+				FMProperty opp = new FMProperty(oppositeProperty.getName(), oppositeProperty.getType().getName(), oppositeProperty.getVisibility().toString(), 
+						oppositeProperty.getLower(), oppositeProperty.getUpper());
+				prop.setOppositeProperty(opp);
+				//prop.setOppositeProperty();
+				if (StereotypesHelper.getAppliedStereotypeByString(p, Resources.ONE_TO_ONE) != null) {
+					prop.setRelationshipAnnotation("OneToOne");
+				} else if (StereotypesHelper.getAppliedStereotypeByString(p, Resources.ONE_TO_MANY) != null) {
+					prop.setRelationshipAnnotation("OneToMany");
+				} else if (StereotypesHelper.getAppliedStereotypeByString(p, Resources.MANY_TO_ONE) != null) {
+					prop.setRelationshipAnnotation("ManyToOne");
+				} else if (StereotypesHelper.getAppliedStereotypeByString(p, Resources.MANY_TO_MANY) != null) {
+					//add new class
+					prop.setRelationshipAnnotation("ManyToMany");
+				}
+			}
+		}
 		return prop;		
 	}	
 	
+	private Integer parseInt(String value) {
+		if (value == null)
+			return null;
+		else
+			return Integer.parseInt(value);
+	}
+
 	private FMEnumeration getEnumerationData(Enumeration enumeration, String packageName) throws AnalyzeException {
 		FMEnumeration fmEnum = new FMEnumeration(enumeration.getName(), packageName);
 		List<EnumerationLiteral> list = enumeration.getOwnedLiteral();
@@ -148,5 +185,14 @@ public class ModelAnalyzer {
 		return fmEnum;
 	}	
 	
-	
+
+	public String getTagValue(Element el, Stereotype s, String tagName) {
+		@SuppressWarnings("rawtypes")
+		List value = StereotypesHelper.getStereotypePropertyValueAsString(el, s, tagName);
+		if (value == null)
+			return null;
+		if (value.size() == 0)
+			return null;
+		return (String) value.get(0);
+	}
 }

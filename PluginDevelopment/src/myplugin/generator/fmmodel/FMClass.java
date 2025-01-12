@@ -62,8 +62,5 @@ public class FMClass extends FMType {
 
 	public void setVisibility(String visibility) {
 		this.visibility = visibility;
-	}	
-
-	
-	
+	}
 }

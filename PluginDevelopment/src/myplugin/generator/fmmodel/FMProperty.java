@@ -1,5 +1,6 @@
 package myplugin.generator.fmmodel;
 
+import org.apache.xpath.operations.String;
 
 public class FMProperty extends FMElement  {
 	//Property type
@@ -10,6 +11,19 @@ public class FMProperty extends FMElement  {
 	private Integer lower;
 	//Multiplicity (upper value) 
 	private Integer upper;
+	
+	// Viki: dodatni atributi koji su korisni prilikom generisanja fajlova
+	private Boolean required = false;
+	private Integer precision;
+	private Integer length;
+
+	private boolean referenced = false;
+	private String relationshipAnnotation;
+	private FMProperty oppositeProperty;
+	private String packagePath;
+
+	private String lblName;
+	protected String mappedBy;
 	
 	/** @ToDo: Add length, precision, unique... whatever is needed for ejb class generation
 	 * Also, provide these meta-attributes or tags in the modeling languange metaclass or 
@@ -52,5 +66,68 @@ public class FMProperty extends FMElement  {
 
 	public void setUpper(Integer upper) {
 		this.upper = upper;
+	}
+
+	public boolean isReferenced() {
+		return referenced;
+	}
+
+	public void setReferenced(boolean referenced) {
+		this.referenced = referenced;
+	}
+
+	public String getRelationshipAnnotation() {
+		return relationshipAnnotation;
+	}
+
+	public void setRelationshipAnnotation(String annotation) {
+		this.relationshipAnnotation = annotation;
+	}
+
+	public Boolean getRequired() {
+		return required;
+	}
+
+	public void setRequired(Boolean required) {
+		this.required = required;
+	}
+	public String getMappedBy() {
+		return mappedBy;
+	}
+
+	public void setMappedBy(String mappedBy) {
+		this.mappedBy = mappedBy;
+	}
+
+	public String getLblName() {
+		return lblName;
+	}
+
+	public void setLblName(String lblName) {
+		this.lblName = lblName;
+	}
+
+	public Integer getPrecision() {
+		return precision;
+	}
+
+	public void setPrecision(Integer precision) {
+		this.precision = precision;
+	}
+
+	public Integer getLength() {
+		return length;
+	}
+
+	public void setLength(Integer length) {
+		this.length = length;
+	}
+
+	public FMProperty getOppositeProperty() {
+		return oppositeProperty;
+	}
+
+	public void setOppositeProperty(FMProperty oppositeProperty) {
+		this.oppositeProperty = oppositeProperty;
 	}
 }

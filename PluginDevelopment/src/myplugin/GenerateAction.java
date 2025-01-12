@@ -49,11 +49,13 @@ class GenerateAction extends MDAction{
 			EJBGenerator generator = new EJBGenerator(go);
 			generator.generate();
 			
-			/*
+
+			// Viki: postavljanje analize + generisanja
+			//analyzer.prepareModel();	
 			GeneratorOptions contextGO = ProjectOptions.getProjectOptions().getGeneratorOptions().get("ContextGenerator");			
 			ContextGenerator contextGenerator = new ContextGenerator(contextGO);
 			contextGenerator.generate();
-			*/
+			
 			/**  @ToDo: Also call other generators */ 
 			JOptionPane.showMessageDialog(null, "Code is successfully generated! Generated code is in folder: " + go.getOutputPath() +
 					                         ", package: " + go.getFilePackage());
