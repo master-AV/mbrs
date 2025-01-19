@@ -29,12 +29,12 @@ import com.nomagic.uml2.ext.magicdraw.mdprofiles.Stereotype;
  * Model Analyzer methods in order to support GUI generation. */ 
 
 // Viki: zavisno od toga koji deo modela postavimo mozemo da dodajemo razlicite analyzere
-public class ModelAnalyzer {	
+public class ModelAnalyzer implements IAnalyzer {	
 	//root model package
-	protected Package root;
+	private Package root;
 	
 	//java root package for generated code
-	protected String filePackage;
+	private String filePackage;
 	
 	public ModelAnalyzer(Package root, String filePackage) {
 		super();
@@ -45,10 +45,13 @@ public class ModelAnalyzer {
 	public Package getRoot() {
 		return root;
 	}
+
+	public String getFilePackage() {
+		return this.filePackage;
+	}
 	
 	public void prepareModel() throws AnalyzeException {
 		FMModel.getInstance().getClasses().clear();
-		FMModel.getInstance().getEnumerations().clear();
 		processPackage(root, filePackage);
 	}
 	
@@ -72,23 +75,7 @@ public class ModelAnalyzer {
 					Class cl = (Class)ownedElement;
 					FMClass fmClass = getClassData(cl, packageName);
 					FMModel.getInstance().getClasses().add(fmClass);
-				}
-				
-				if (ownedElement instanceof Enumeration) {
-					Enumeration en = (Enumeration)ownedElement;
-					FMEnumeration fmEnumeration = getEnumerationData(en, packageName);
-					FMModel.getInstance().getEnumerations().add(fmEnumeration);
-				}								
-			}
-			
-			for (Iterator<Element> it = pack.getOwnedElement().iterator(); it.hasNext();) {
-				Element ownedElement = it.next();
-				if (ownedElement instanceof Package) {					
-					Package ownedPackage = (Package)ownedElement;
-					if (StereotypesHelper.getAppliedStereotypeByString(ownedPackage, "BusinessApp") != null)
-						//only packages with stereotype BusinessApp are candidates for metadata extraction and code generation:
-						processPackage(ownedPackage, packageName);
-				}
+				}			
 			}
 			
 			/** @ToDo:
@@ -170,18 +157,6 @@ public class ModelAnalyzer {
 			return Integer.parseInt(value);
 	}
 
-	private FMEnumeration getEnumerationData(Enumeration enumeration, String packageName) throws AnalyzeException {
-		FMEnumeration fmEnum = new FMEnumeration(enumeration.getName(), packageName);
-		List<EnumerationLiteral> list = enumeration.getOwnedLiteral();
-		for (int i = 0; i < list.size() - 1; i++) {
-			EnumerationLiteral literal = list.get(i);
-			if (literal.getName() == null)  
-				throw new AnalyzeException("Items of the enumeration " + enumeration.getName() +
-				" must have names!");
-			fmEnum.addValue(literal.getName());
-		}
-		return fmEnum;
-	}	
 	
 
 	public String getTagValue(Element el, Stereotype s, String tagName) {

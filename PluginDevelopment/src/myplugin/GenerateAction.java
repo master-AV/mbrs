@@ -17,9 +17,11 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
 import myplugin.analyzer.AnalyzeException;
+import myplugin.analyzer.EnumerationAnalyzer;
 import myplugin.analyzer.ModelAnalyzer;
 import myplugin.generator.ContextGenerator;
 import myplugin.generator.EJBGenerator;
+import myplugin.generator.EnumerationGenerator;
 import myplugin.generator.fmmodel.FMModel;
 import myplugin.generator.options.GeneratorOptions;
 import myplugin.generator.options.ProjectOptions;
@@ -42,6 +44,8 @@ class GenerateAction extends MDAction{
 	
 		ModelAnalyzer analyzer = new ModelAnalyzer(root, "ejb");	
 		//ContextAnalyzer contextAnalyzer = new ContextAnalyzer(root, "ejb");
+		EnumerationAnalyzer enumerationAnalyzer = new EnumerationAnalyzer(analyzer);
+
 		
 		try {
 			analyzer.prepareModel();	
@@ -55,6 +59,13 @@ class GenerateAction extends MDAction{
 			GeneratorOptions contextGO = ProjectOptions.getProjectOptions().getGeneratorOptions().get("ContextGenerator");			
 			ContextGenerator contextGenerator = new ContextGenerator(contextGO);
 			contextGenerator.generate();
+			
+
+			enumerationAnalyzer.prepareModel();
+			GeneratorOptions goEnumeration = ProjectOptions.getProjectOptions().getGeneratorOptions()
+					.get("EnumerationGenerator");
+			EnumerationGenerator enumerationGenerator = new EnumerationGenerator(goEnumeration);
+			enumerationGenerator.generate();
 			
 			/**  @ToDo: Also call other generators */ 
 			JOptionPane.showMessageDialog(null, "Code is successfully generated! Generated code is in folder: " + go.getOutputPath() +

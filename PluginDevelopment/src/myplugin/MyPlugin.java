@@ -28,12 +28,13 @@ public class MyPlugin extends com.nomagic.magicdraw.plugins.Plugin {
 		// Viki: generisani fajlovi bice na putanji: c:/temp
 		// treci parametar je putanja do template-a, 
 		// na depoy sve bi trebalo da prebaci iz resource na C, ali meni to nije radio konzistentno pa za sad sam ostavila sa apsolutnem putanjem
-		GeneratorOptions ejbOptions = new GeneratorOptions("c:/temp", "ejbclass", "D:\\fakultet\\master-1\\MBRS\\proj\\mbrs\\PluginDevelopment\\resources\\templates", "{0}.cs", true, "ejb"); 		
-		//idk nece da prebaci
-		GeneratorOptions classOptions = new GeneratorOptions("c:/temp", "contextClass", "D:\\fakultet\\master-1\\MBRS\\proj\\mbrs\\PluginDevelopment\\resources\\templates", "{0}.cs", true, "ejb");
-			
+		GeneratorOptions ejbOptions = new GeneratorOptions("c:/temp", "ejbclass", "D:\\fakultet\\master-1\\MBRS\\proj\\mbrs\\PluginDevelopment\\resources\\templates", "{0}.cs", true, "model"); 		
+		GeneratorOptions classOptions = new GeneratorOptions("c:/temp", "contextClass", "D:\\fakultet\\master-1\\MBRS\\proj\\mbrs\\PluginDevelopment\\resources\\templates", "{0}.cs", true, "model");
+		GeneratorOptions enumerationOptions = new GeneratorOptions("c:/temp", "enumeration", "D:\\fakultet\\master-1\\MBRS\\proj\\mbrs\\PluginDevelopment\\resources\\templates", "{0}.cs", true, "model");
+
 		ProjectOptions.getProjectOptions().getGeneratorOptions().put("EJBGenerator", ejbOptions);
 		ProjectOptions.getProjectOptions().getGeneratorOptions().put("ContextGenerator", classOptions);
+		ProjectOptions.getProjectOptions().getGeneratorOptions().put("EnumerationGenerator", enumerationOptions);
 			
 		// Viki: kad prebaci templete na C, ovako nameste putanje do tih fajlova
 		//ejbOptions.setTemplateDir(pluginDir + File.separator + ejbOptions.getTemplateDir()); //apsolutna putanja

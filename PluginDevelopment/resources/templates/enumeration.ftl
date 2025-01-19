@@ -6,9 +6,9 @@ namespace Model
 	{
 	<#list properties as property>
 		<#if property == properties?last>
-		${property}
+		${property?cap_first}
 		<#else>
-		${property},
+		${property?cap_first},
 		</#if>
 	</#list>
 	}
