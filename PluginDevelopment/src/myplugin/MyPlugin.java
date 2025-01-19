@@ -1,11 +1,5 @@
 package myplugin;
 
-import java.io.File;
-
-import javax.swing.JOptionPane;
-
-import org.apache.xpath.operations.String;
-
 import myplugin.generator.options.GeneratorOptions;
 import myplugin.generator.options.ProjectOptions;
 

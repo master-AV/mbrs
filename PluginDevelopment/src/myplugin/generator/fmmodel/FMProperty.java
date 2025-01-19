@@ -1,7 +1,5 @@
 package myplugin.generator.fmmodel;
 
-import org.apache.xpath.operations.String;
-
 public class FMProperty extends FMElement  {
 	//Property type
 	private String type;

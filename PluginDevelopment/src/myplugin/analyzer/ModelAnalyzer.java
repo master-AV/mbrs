@@ -3,8 +3,6 @@ package myplugin.analyzer;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.xpath.operations.String;
-
 import myplugin.generator.fmmodel.FMClass;
 import myplugin.generator.fmmodel.FMEnumeration;
 import myplugin.generator.fmmodel.FMModel;

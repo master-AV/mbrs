@@ -10,8 +10,6 @@ import java.util.Set;
 
 import javax.swing.JOptionPane;
 
-import org.apache.xpath.operations.String;
-
 import freemarker.template.TemplateException;
 import myplugin.generator.fmmodel.FMClass;
 import myplugin.generator.fmmodel.FMEnumeration;
