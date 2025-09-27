@@ -11,57 +11,44 @@ namespace Model
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-<#list classes as classObj>
-
-            modelBuilder.Entity<${classObj.class.name}>(entity =>
-            {
-                entity.HasKey(a => a.Id);
-                entity.ToTable("${classObj.class.name}");
-<#list classObj.class.properties as property>
-	<#if property.referenced>
-        <#if property.relationshipAnnotation?? && property.relationshipAnnotation == "OneToOne">
-                entity.HasOne(s => s.${property.name})
-                <#if property.oppositeProperty.name != "">
-                    .WithOne(s => s.${property.oppositeProperty.name})
-                </#if>
-                    .HasForeignKey("${property.oppositeProperty.type}Id");
-        <#elseif property.relationshipAnnotation?? && property.relationshipAnnotation == "OneToMany">
-                entity.HasOne(s => s.${property.name})
-                <#if property.oppositeProperty.name != "">
-                    .WithMany(e => e.${property.oppositeProperty.name})
-                </#if>
-                    .HasForeignKey("${property.type}Id");
-        <#elseif property.relationshipAnnotation?? && property.relationshipAnnotation == "ManyToOne">
-                entity.HasMany(s => s.${property.name})
-                <#if property.oppositeProperty.name != "">
-                    .WithOne(e => e.${property.oppositeProperty.name})
-                </#if>
-                    .HasForeignKey("${property.oppositeProperty.type}Id");
-        <#elseif property.relationshipAnnotation?? && property.relationshipAnnotation == "ManyToMany">
-                entity.HasMany(s => s.${property.name})
-                    .WithMany(e => e.${property.oppositeProperty.name})
-                    .UsingEntity(
-                        j =>
-                        {
-                            j.Property("${property.oppositeProperty.name}Id").HasColumnName("${property.oppositeProperty.name}ForeignKey");
-                            j.Property("${property.name}Id").HasColumnName("${property.name}ForeignKey");
-                        });
+<#list relationships as relationship>
+            modelBuilder.Entity<${relationship.firstAttributeType}>()
+        <#if relationship.type == "OneToOne">
+                .HasOne(s => s.${relationship.secondAttributeName})
+                .WithOne(x => x.${relationship.firstAttributeName})
+        	<#if relationship.columnName?? >
+        		.HasForeignKey<${relationship.firstAttributeType}>("${relationship.columnName}")<#if !relationship.deleteBehavior?? >;</#if>
+        	<#else>
+                .HasForeignKey<${relationship.firstAttributeType}>("${relationship.secondAttributeType}Id")<#if !relationship.deleteBehavior?? >;</#if>
+            </#if>
+            <#if relationship.deleteBehavior?? >
+            	.OnDelete(DeleteBehaviour.${relationship.deleteBehavior});
+            </#if>
+                    
+        <#elseif relationship.type == "OneToMany">
+                .HasMany(s => s.${relationship.secondAttributeName})
+                .WithOne(x => x.${relationship.firstAttributeName})
+        	<#if relationship.columnName?? >
+        		.HasForeignKey("${relationship.columnName}")<#if !relationship.deleteBehavior?? >;</#if>
+        	<#else>
+                .HasForeignKey("${relationship.firstAttributeType}Id")<#if !relationship.deleteBehavior?? >;</#if>
+            </#if>
+            <#if relationship.deleteBehavior?? >
+            	.OnDelete(DeleteBehaviour.${relationship.deleteBehavior});
+            </#if>
+            
+        <#elseif relationship.type == "ManyToMany">
+        		.HasMany(e => e.${relationship.secondAttributeName})
+        		.WithMany(e => e.${relationship.firstAttributeName})<#if !relationship.joinTableName?? >;</#if>
+        	<#if relationship.joinTableName?? >
+                .UsingEntity(
+           			"${relationship.joinTableName}",
+	           			r.HasOne(typeof(${relationship.secondAttributeType})).WithMany().HasForeignKey("${relationship.secondAttributeType}Id").HasPrincipalKey(nameof(${relationship.secondAttributeType}.Id)),
+						l=>l.HasOne(typeof(${relationship.firstAttributeType})).WithMany().HasForeignKey("${relationship.firstAttributeType}Id").HasPrincipalKey(nameof(${relationship.firstAttributeType}.Id))
+						j => j.HasKey("${relationship.firstAttributeType}Id", "${relationship.secondAttributeType}Id"));
+            </#if>
         </#if>
-	<#elseif property.upper == 1 >
-                entity.Property(p => p.${property.name});
-    <#else>
-    	<#list 1..property.upper as i>
-                entity.Property(p => p.${property.name}${i});
-		</#list>  
-    </#if> 
-
 </#list>
-            });
-
-
-</#list>
-        
         }
     }
 }
-	

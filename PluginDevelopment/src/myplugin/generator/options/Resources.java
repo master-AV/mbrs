@@ -8,5 +8,22 @@ public class Resources {
 	public static final String MANY_TO_ONE = "ManyToOne";
 	public static final String MANY_TO_MANY = "ManyToMany";
 	public static final String UI_PROPERTY = "PersistentProperty";
+	public static final String APPSETTING = "Appsetting";
+	public static final String PROGRAM = "Program";
+	public static final String STARTUP = "Startup";
 	
+	
+	// GeneratorTypes
+	public static final String CONTEXT_GENERATOR = "ContextGenerator";
+	public static final String ENUMERATION_GENERATOR = "EnumerationGenerator";
+	public static final String MODEL_GENERATOR = "EJBGenerator";
+	public static final String APPSETTINGS_GENERATOR = "AppsettingsGenerator";
+	public static final String PROGRAM_GENERATOR = "ProgramGenerator";
+	
+	public static final String STARTUP_GENERATOR = "StartupGenerator";
+
+	public static final String REPOSITORY_GENERATOR = "RepositoryGenerator";
+	public static final String SERVICE_GENERATOR = "ServiceGenerator";
+	public static final String CONTROLLER_GENERATOR = "ControllerGenerator";
+	public static final String DTO_GENERATOR = "DtoGenerator";
 }

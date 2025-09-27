@@ -2,7 +2,9 @@ package myplugin.generator;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -26,10 +28,10 @@ public class EnumerationGenerator extends BasicGenerator {
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(null, e.getMessage());
 		}
-
-		List<FMEnumeration> classes = FMModel.getInstance().getEnumerations();
-		for (int i = 0; i < classes.size(); i++) {
-			FMEnumeration cl = classes.get(i);
+/*
+		List<FMEnumeration> enumerations = FMModel.getInstance().getEnumerations();
+		for (int i = 0; i < enumerations.size(); i++) {
+			FMEnumeration cl = enumerations.get(i);
 			Writer out;
 			Map<String, Object> context = new HashMap<String, Object>();
 			try {
@@ -39,6 +41,33 @@ public class EnumerationGenerator extends BasicGenerator {
 					context.put("class", cl);
 					context.put("properties", cl.getValues());
 
+					getTemplate().process(context, out);
+					out.flush();
+				}*/
+		List<FMEnumeration> enums = FMModel.getInstance().getEnumerations();
+		for (int i = 0; i < enums.size(); i++) {
+			FMEnumeration en = enums.get(i);
+			Writer out;
+			Map<String, Object> context = new HashMap<String, Object>();
+			try {
+				out = getWriter(en.getName(), "");
+				if (out != null) {
+					context.clear();
+					context.put("name", en.getName());
+
+					List<String> values = new ArrayList<String>();
+					
+					Iterator<String> enit = en.getValueIterator();
+					while(enit.hasNext()) {
+						values.add(enit.next());
+					}
+//					
+//					for(int j = 0; j<en.getValuesCount(); j++) {
+//						values.add(en.getValueAt(j));
+//					}
+					context.put("values", values);
+					//context.put("appName", FMModel.getInstance().getApplication().getName());
+					
 					getTemplate().process(context, out);
 					out.flush();
 				}

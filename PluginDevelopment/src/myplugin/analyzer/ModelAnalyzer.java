@@ -7,6 +7,10 @@ import myplugin.generator.fmmodel.FMClass;
 import myplugin.generator.fmmodel.FMEnumeration;
 import myplugin.generator.fmmodel.FMModel;
 import myplugin.generator.fmmodel.FMProperty;
+import myplugin.generator.fmmodel.FMRelationship;
+import myplugin.generator.fmmodel.FMStartup;
+import myplugin.generator.fmmodel.back.config.FMApplication;
+import myplugin.generator.fmmodel.back.config.FMProgram;
 import myplugin.generator.options.Resources;
 
 import com.nomagic.uml2.ext.jmi.helpers.ModelHelper;
@@ -51,7 +55,11 @@ public class ModelAnalyzer implements IAnalyzer {
 	}
 	
 	public void prepareModel() throws AnalyzeException {
-		FMModel.getInstance().getClasses().clear();
+		/*FMModel.getInstance().getClasses().clear();
+		FMModel.getInstance().getRelationships().clear();
+		FMModel.getInstance().setApplication(null);
+		FMModel.getInstance().setO*/
+		FMModel.getInstance().Clear();
 		processPackage(root, filePackage);
 	}
 	
@@ -73,20 +81,38 @@ public class ModelAnalyzer implements IAnalyzer {
 				Element ownedElement = it.next();
 				if (ownedElement instanceof Class) {
 					Class cl = (Class)ownedElement;
-					FMClass fmClass = getClassData(cl, packageName);
-					FMModel.getInstance().getClasses().add(fmClass);
-				}			
+					getClassData(cl, packageName);
+				}		
+
+				if (ownedElement instanceof Enumeration) {
+					Enumeration en = (Enumeration)ownedElement;
+					FMEnumeration fmEnumeration = getEnumerationData(en, packageName);
+					FMModel.getInstance().getEnumerations().add(fmEnumeration);
+				}
 			}
-			
+
 			/** @ToDo:
 			  * Process other package elements, as needed */ 
 		}
 	}
 	
-	private FMClass getClassData(Class cl, String packageName) throws AnalyzeException {
+	private void getClassData(Class cl, String packageName) throws AnalyzeException {
 		if (cl.getName() == null) 
 			throw new AnalyzeException("Classes must have names!");
 		
+		if (StereotypesHelper.getAppliedStereotypeByString(cl, Resources.APPSETTING) != null) {
+			getAppsettings(cl);
+			return;
+		}
+		if (StereotypesHelper.getAppliedStereotypeByString(cl, Resources.PROGRAM) != null) {
+			getProgram(cl);
+			return;
+		}
+
+		if (StereotypesHelper.getAppliedStereotypeByString(cl, Resources.STARTUP) != null) {
+			getStartup(cl);
+			return;
+		}
 		FMClass fmClass = new FMClass(cl.getName(), packageName, cl.getVisibility().toString());
 		Iterator<Property> it = ModelHelper.attributes(cl);
 		while (it.hasNext()) {
@@ -94,12 +120,43 @@ public class ModelAnalyzer implements IAnalyzer {
 			FMProperty prop = getPropertyData(p, cl);
 			fmClass.addProperty(prop);	
 		}	
+		FMModel.getInstance().getClasses().add(fmClass);
 		
 		/** @ToDo:
-		 * Add import declarations etc. */		
-		return fmClass;
+		 * Add import declarations etc. */	
+	}
+
+	private void getStartup(Class cl) {
+		// TODO Auto-generated method stub
+		FMStartup startup = new FMStartup(cl.getName());
+		Stereotype propStereotype = StereotypesHelper.getAppliedStereotypeByString(cl, Resources.STARTUP);
+		startup.setAppTitle(getTagValue(cl, propStereotype, "appTitle"));
+		startup.setDistributedMemoryCache(Boolean.valueOf(getTagValue(cl, propStereotype, "distributedMemoryCache")));
+		FMModel.getInstance().setStartup(startup);
 	}
 	
+	private void getProgram(Class cl) {
+		// TODO Auto-generated method stub
+		FMProgram program = new FMProgram(cl.getName());
+		Stereotype propStereotype = StereotypesHelper.getAppliedStereotypeByString(cl, Resources.PROGRAM);
+		program.setKestrelKeepAliveInMinutes(Integer.valueOf(getTagValue(cl, propStereotype, "kestrelKeepAliveInMinutes")));
+		program.setMigrate(Boolean.valueOf(getTagValue(cl, propStereotype, "migrate")));
+		FMModel.getInstance().setProgram(program);
+	}
+
+	private void getAppsettings(Class cl) {// TODO: v continue <3
+		//Iterator<Property> it = ModelHelper.attributes(cl);
+		//while (it.hasNext()) {
+			//Property p = it.next();
+			FMApplication app = new FMApplication(cl.getName());
+			Stereotype propStereotype = StereotypesHelper.getAppliedStereotypeByString(cl, Resources.APPSETTING);
+			app.setConnectionString(getTagValue(cl, propStereotype, "connectionString"));
+			app.setLogLevelDefault(getTagValue(cl, propStereotype, "LogLevelDefault"));
+			app.setAllowedHosts(getTagValue(cl, propStereotype, "allowedHosts"));
+			FMModel.getInstance().setApplication(app);
+		//}
+	}
+
 	private FMProperty getPropertyData(Property p, Class cl) throws AnalyzeException {
 		String attName = p.getName();
 		if (attName == null) 
@@ -125,25 +182,40 @@ public class ModelAnalyzer implements IAnalyzer {
 		if (StereotypesHelper.getAppliedStereotypeByString(p, Resources.UI_PROPERTY) != null) {
 			Stereotype propStereotype = StereotypesHelper.getAppliedStereotypeByString(p, Resources.UI_PROPERTY);
 
+			prop.setColumnName(getTagValue(p, propStereotype, "columnName"));
+			prop.setDbType(getTagValue(p, propStereotype, "dbType"));
+			prop.setLength(parseInt(getTagValue(p, propStereotype, "length")));
 			prop.setRequired(Boolean.valueOf(getTagValue(p, propStereotype, "required")));
 			prop.setPrecision(parseInt(getTagValue(p, propStereotype, "precision")));
-			prop.setLength(parseInt(getTagValue(p, propStereotype, "length")));
+			prop.setPrecisionScale(parseInt(getTagValue(p, propStereotype, "precisionScale")));
+			prop.setConcurrencyCheck(Boolean.valueOf(getTagValue(p, propStereotype, "concurrencyCheck")));
 			if (attType.has_associationOfEndType()) {
-				prop.setReferenced(true);
 				Property oppositeProperty = p.getOpposite();
 				FMProperty opp = new FMProperty(oppositeProperty.getName(), oppositeProperty.getType().getName(), oppositeProperty.getVisibility().toString(), 
 						oppositeProperty.getLower(), oppositeProperty.getUpper());
-				prop.setOppositeProperty(opp);
-				//prop.setOppositeProperty();
 				if (StereotypesHelper.getAppliedStereotypeByString(p, Resources.ONE_TO_ONE) != null) {
-					prop.setRelationshipAnnotation("OneToOne");
+					Stereotype associationStereotype = StereotypesHelper.getAppliedStereotypeByString(p, Resources.ONE_TO_ONE);
+					FMRelationship rel = new FMRelationship(Resources.ONE_TO_ONE, prop.getType(), prop.getName(), opp.getType(), opp.getName());
+					rel.setColumnName(getTagValue(p, associationStereotype, "columnName"));
+					rel.setDeleteBehavior(getTagValue(p, associationStereotype, "deleteBehavior"));
+					
+					FMModel.getInstance().addRelationship(rel);
 				} else if (StereotypesHelper.getAppliedStereotypeByString(p, Resources.ONE_TO_MANY) != null) {
-					prop.setRelationshipAnnotation("OneToMany");
-				} else if (StereotypesHelper.getAppliedStereotypeByString(p, Resources.MANY_TO_ONE) != null) {
-					prop.setRelationshipAnnotation("ManyToOne");
+					Stereotype associationStereotype = StereotypesHelper.getAppliedStereotypeByString(p, Resources.ONE_TO_MANY);
+					FMRelationship rel = new FMRelationship(Resources.ONE_TO_MANY, prop.getType(), prop.getName(), opp.getType(), opp.getName());
+					rel.setColumnName(getTagValue(p, associationStereotype, "columnName"));
+					rel.setDeleteBehavior(getTagValue(p, associationStereotype, "deleteBehavior"));
+					FMModel.getInstance().addRelationship(rel);
+
+				//} else if (StereotypesHelper.getAppliedStereotypeByString(p, Resources.MANY_TO_ONE) != null) {
+					//prop.setRelationshipAnnotation(Resources.MANY_TO_ONE);
+					//FMRelationship rel = new FMRelationship(Resources.MANY_TO_ONE, prop.getType(), prop.getName(), opp.getType(), opp.getName());
+					//FMModel.getInstance().addRelationship(rel);
 				} else if (StereotypesHelper.getAppliedStereotypeByString(p, Resources.MANY_TO_MANY) != null) {
-					//add new class
-					prop.setRelationshipAnnotation("ManyToMany");
+					Stereotype associationStereotype = StereotypesHelper.getAppliedStereotypeByString(p, Resources.MANY_TO_MANY);
+					FMRelationship rel = new FMRelationship(Resources.MANY_TO_MANY, prop.getType(), prop.getName(), opp.getType(), opp.getName());
+					rel.setJoinTableName(getTagValue(p, associationStereotype, "joinTableName"));
+					FMModel.getInstance().addRelationship(rel);
 				}
 			}
 		}
@@ -167,5 +239,19 @@ public class ModelAnalyzer implements IAnalyzer {
 		if (value.size() == 0)
 			return null;
 		return (String) value.get(0);
+	}
+	
+
+	private FMEnumeration getEnumerationData(Enumeration enumeration, String packageName) throws AnalyzeException {
+		FMEnumeration fmEnum = new FMEnumeration(enumeration.getName(), packageName);
+		List<EnumerationLiteral> list = enumeration.getOwnedLiteral();
+		for (int i = 0; i < list.size(); i++) {
+			EnumerationLiteral literal = list.get(i);
+			if (literal.getName() == null)  
+				throw new AnalyzeException("Items of the enumeration " + enumeration.getName() +
+				" must have names!");
+			fmEnum.addValue(literal.getName());
+		}
+		return fmEnum;
 	}
 }

@@ -3,25 +3,27 @@ package myplugin.generator.fmmodel;
 public class FMProperty extends FMElement  {
 	//Property type
 	private String type;
-	// Property visibility (public, private, protected, package)
 	private String visibility;
-	//Multiplicity (lower value)
+	
 	private Integer lower;
-	//Multiplicity (upper value) 
 	private Integer upper;
 	
 	// Viki: dodatni atributi koji su korisni prilikom generisanja fajlova
+	private String columnName;
+	private String dbType;
+	private Integer length;
 	private Boolean required = false;
 	private Integer precision;
-	private Integer length;
+	private Integer precisionScale;
+	private boolean concurrencyCheck;
 
-	private boolean referenced = false;
-	private String relationshipAnnotation;
-	private FMProperty oppositeProperty;
+	//private boolean referenced = false;
+	//private String relationshipAnnotation;
+	//private FMProperty oppositeProperty;
 	private String packagePath;
 
 	private String lblName;
-	protected String mappedBy;
+	//protected String mappedBy;
 	
 	/** @ToDo: Add length, precision, unique... whatever is needed for ejb class generation
 	 * Also, provide these meta-attributes or tags in the modeling languange metaclass or 
@@ -61,7 +63,7 @@ public class FMProperty extends FMElement  {
 	public Integer getUpper() {
 		return upper;
 	}
-
+/*
 	public void setUpper(Integer upper) {
 		this.upper = upper;
 	}
@@ -81,7 +83,7 @@ public class FMProperty extends FMElement  {
 	public void setRelationshipAnnotation(String annotation) {
 		this.relationshipAnnotation = annotation;
 	}
-
+*/
 	public Boolean getRequired() {
 		return required;
 	}
@@ -89,13 +91,13 @@ public class FMProperty extends FMElement  {
 	public void setRequired(Boolean required) {
 		this.required = required;
 	}
-	public String getMappedBy() {
+	/*public String getMappedBy() {
 		return mappedBy;
 	}
 
 	public void setMappedBy(String mappedBy) {
 		this.mappedBy = mappedBy;
-	}
+	}*/
 
 	public String getLblName() {
 		return lblName;
@@ -120,12 +122,58 @@ public class FMProperty extends FMElement  {
 	public void setLength(Integer length) {
 		this.length = length;
 	}
-
+/*
 	public FMProperty getOppositeProperty() {
 		return oppositeProperty;
 	}
 
 	public void setOppositeProperty(FMProperty oppositeProperty) {
 		this.oppositeProperty = oppositeProperty;
+	}*/
+
+	public String getColumnName() {
+		return columnName;
 	}
+
+	public void setColumnName(String columnName) {
+		this.columnName = columnName;
+	}
+
+	public String getDbType() {
+		return dbType;
+	}
+
+	public void setDbType(String dbType) {
+		this.dbType = dbType;
+	}
+
+	public Integer getPrecisionScale() {
+		return precisionScale;
+	}
+
+	public void setPrecisionScale(Integer precisionScale) {
+		this.precisionScale = precisionScale;
+	}
+
+	public boolean isConcurrencyCheck() {
+		return concurrencyCheck;
+	}
+
+	public void setConcurrencyCheck(boolean concurrencyCheck) {
+		this.concurrencyCheck = concurrencyCheck;
+	}
+
+	public String getPackagePath() {
+		return packagePath;
+	}
+
+	public void setPackagePath(String packagePath) {
+		this.packagePath = packagePath;
+	}
+
+	public void setUpper(Integer upper) {
+		this.upper = upper;
+	}
+	
+	
 }

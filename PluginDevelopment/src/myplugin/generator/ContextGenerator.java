@@ -14,6 +14,7 @@ import freemarker.template.TemplateException;
 import myplugin.generator.fmmodel.FMClass;
 import myplugin.generator.fmmodel.FMEnumeration;
 import myplugin.generator.fmmodel.FMModel;
+import myplugin.generator.fmmodel.FMRelationship;
 import myplugin.generator.options.GeneratorOptions;
 
 // Viki: generator - koji gde odredimo context nad kojem radimo generisanje -- radi generisanje
@@ -33,6 +34,7 @@ public class ContextGenerator extends BasicGenerator {
 		
 		try {
 			List<FMClass> classes = FMModel.getInstance().getClasses();
+			List<FMRelationship> relationships = FMModel.getInstance().getRelationships();
 			Map<String, Object> context = new HashMap<String, Object>();
 			
 			// Viki: popunjavanje contexta
@@ -46,11 +48,12 @@ public class ContextGenerator extends BasicGenerator {
 				classesSet.add(innerContext);
 			}
 			
+			context.put("relationships", relationships);
 			context.put("classes", classesSet);
 			Writer out;
 			//JOptionPane.showMessageDialog(null, "Path " + classes.get(0).getTypePackage());
 			//JOptionPane.showMessageDialog(null, "Path " + classes.get(0).getName());
-			out = getWriter("Databaseontext", classes.get(0).getTypePackage());
+			out = getWriter("DatabaseContext.generated", classes.get(0).getTypePackage());
 			getTemplate().process(context, out);
 			out.flush();
 		} catch (TemplateException e) {
