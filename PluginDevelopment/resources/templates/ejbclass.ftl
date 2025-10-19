@@ -10,7 +10,7 @@ namespace Model
 	[Table("${class.tableName}")]
 	</#if>
 </#if>
-	${class.visibility} class ${class.name} {  
+	${class.visibility} partial class ${class.name} {  
 	
 		[Key]
 		public int Id { get; set; }

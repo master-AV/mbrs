@@ -76,6 +76,49 @@ public abstract class BasicGenerator {
 
 	}
 
+	public Writer getWriter(String fileNamePart) throws IOException {
+		if (generatorOptions.getFilePackage() != filePackage) {
+			generatorOptions.getFilePackage() .replace(".", File.separator);		
+			filePackage = generatorOptions.getFilePackage();
+		}
+			
+		String fullPath = outputPath
+				+ File.separator
+				+ (filePackage.isEmpty() ? "" : packageToPath(filePackage)
+						+ File.separator)
+				+ outputFileName.replace("{0}", fileNamePart);
+
+		File of = new File(fullPath);
+		if (!of.getParentFile().exists()) {
+			if (!of.getParentFile().mkdirs()) {
+				throw new IOException("An error occurred during output folder creation "
+						+ outputPath);
+			}
+		}
+
+		System.out.println(of.getPath());
+		System.out.println(of.getName());
+
+		if (!isOverwrite() && of.exists()) {
+			return null;
+		}
+
+		return new OutputStreamWriter(new FileOutputStream(of));
+
+	}
+	public String getFullPath(String fileNamePart) {
+		if (generatorOptions.getFilePackage() != filePackage) {
+			generatorOptions.getFilePackage() .replace(".", File.separator);		
+			filePackage = generatorOptions.getFilePackage();
+		}
+		
+		return outputPath
+				+ File.separator
+				+ (filePackage.isEmpty() ? "" : packageToPath(filePackage)
+						+ File.separator)
+				+ outputFileName.replace("{0}", fileNamePart);
+
+	}
 	public Writer getWriter(String fileNamePart, String packageName) throws IOException {
 		if (packageName != filePackage) {
 			packageName.replace(".", File.separator);		

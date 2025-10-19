@@ -21,9 +21,12 @@ import myplugin.analyzer.EnumerationAnalyzer;
 import myplugin.analyzer.ModelAnalyzer;
 import myplugin.generator.AppsettingsGenerator;
 import myplugin.generator.ContextGenerator;
+import myplugin.generator.ControllerGenerator;
 import myplugin.generator.EJBGenerator;
 import myplugin.generator.EnumerationGenerator;
 import myplugin.generator.ProgramGenerator;
+import myplugin.generator.RepositoryGenerator;
+import myplugin.generator.ServiceGenerator;
 import myplugin.generator.StartupGenerator;
 import myplugin.generator.fmmodel.FMModel;
 import myplugin.generator.options.GeneratorOptions;
@@ -82,7 +85,18 @@ class GenerateAction extends MDAction{
 			GeneratorOptions startupOptions = ProjectOptions.getProjectOptions().getGeneratorOptions().get(Resources.STARTUP_GENERATOR);			
 			StartupGenerator startupGenerator = new StartupGenerator(startupOptions);
 			startupGenerator.generate();
-			
+
+			GeneratorOptions repositoryOptions = ProjectOptions.getProjectOptions().getGeneratorOptions().get(Resources.REPOSITORY_GENERATOR);			
+			RepositoryGenerator repositoryGenerator = new RepositoryGenerator(repositoryOptions);
+			repositoryGenerator.generate();
+
+			GeneratorOptions serviceOptions = ProjectOptions.getProjectOptions().getGeneratorOptions().get(Resources.SERVICE_GENERATOR);			
+			ServiceGenerator serviceGenerator = new ServiceGenerator(serviceOptions);
+			serviceGenerator.generate();
+
+			GeneratorOptions controllerOptions = ProjectOptions.getProjectOptions().getGeneratorOptions().get(Resources.CONTROLLER_GENERATOR);			
+			ControllerGenerator controllerGenerator = new ControllerGenerator(controllerOptions);
+			controllerGenerator.generate();
 			/**  @ToDo: Also call other generators */ 
 			JOptionPane.showMessageDialog(null, "Code is successfully generated! Generated code is in folder: " + go.getOutputPath() +
 					                         ", package: " + go.getFilePackage());

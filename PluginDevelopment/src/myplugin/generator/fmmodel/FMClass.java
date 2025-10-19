@@ -13,6 +13,8 @@ public class FMClass extends FMType {
 	//Class properties
 	private List<FMProperty> FMProperties = new ArrayList<FMProperty>();
 	
+	private List<FMMethod> relatedMethods = new ArrayList<FMMethod>();
+	
 	//list of packages (for import declarations) 
 	private List<String> importedPackages = new ArrayList<String>();
 	
@@ -62,5 +64,17 @@ public class FMClass extends FMType {
 
 	public void setVisibility(String visibility) {
 		this.visibility = visibility;
+	}
+
+	public List<FMMethod> getRelatedMethods() {
+		return relatedMethods;
+	}
+
+	public void setRelatedMethods(List<FMMethod> methods) {
+		this.relatedMethods = methods;
+	}
+
+	public void addRelatedMethod(FMMethod method){
+		this.relatedMethods.add(method);		
 	}
 }

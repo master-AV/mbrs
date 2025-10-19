@@ -16,6 +16,7 @@ public class FMModel {
 	private List<FMClass> classes = new ArrayList<FMClass>();
 	private List<FMRelationship> efRelationships = new ArrayList<FMRelationship>();
 	private List<FMEnumeration> enumerations = new ArrayList<FMEnumeration>();
+	
 	private FMApplication application = null;
 	private FMProgram program = new FMProgram("default");
 	private FMStartup startup = new FMStartup("default");

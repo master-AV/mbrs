@@ -5,7 +5,9 @@ import java.util.List;
 
 import myplugin.generator.fmmodel.FMClass;
 import myplugin.generator.fmmodel.FMEnumeration;
+import myplugin.generator.fmmodel.FMMethod;
 import myplugin.generator.fmmodel.FMModel;
+import myplugin.generator.fmmodel.FMParameter;
 import myplugin.generator.fmmodel.FMProperty;
 import myplugin.generator.fmmodel.FMRelationship;
 import myplugin.generator.fmmodel.FMStartup;
@@ -17,7 +19,10 @@ import com.nomagic.uml2.ext.jmi.helpers.ModelHelper;
 import com.nomagic.uml2.ext.jmi.helpers.StereotypesHelper;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Element;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.EnumerationLiteral;
+import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Operation;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Package;
+import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Parameter;
+import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.ParameterDirectionKind;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Enumeration;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Property;
@@ -120,6 +125,12 @@ public class ModelAnalyzer implements IAnalyzer {
 			FMProperty prop = getPropertyData(p, cl);
 			fmClass.addProperty(prop);	
 		}	
+		Iterator<Operation> op = ModelHelper.operations(cl);
+		while (op.hasNext()) {
+			Operation p = op.next();
+			FMMethod method = getMethodData(p, cl);
+			fmClass.addRelatedMethod(method);
+		}
 		FMModel.getInstance().getClasses().add(fmClass);
 		
 		/** @ToDo:
@@ -158,6 +169,7 @@ public class ModelAnalyzer implements IAnalyzer {
 	}
 
 	private FMProperty getPropertyData(Property p, Class cl) throws AnalyzeException {
+
 		String attName = p.getName();
 		if (attName == null) 
 			throw new AnalyzeException("Properties of the class: " + cl.getName() +
@@ -176,10 +188,11 @@ public class ModelAnalyzer implements IAnalyzer {
 		int upper = p.getUpper();
 		
 		FMProperty prop = new FMProperty(attName, typeName, p.getVisibility().toString(), lower, upper);
-
 		// Obrada property-ja
 		// Viki: obradom modela dodelimo nasim klasma kao FMProperty dodatne obelezlje
 		if (StereotypesHelper.getAppliedStereotypeByString(p, Resources.UI_PROPERTY) != null) {
+
+			
 			Stereotype propStereotype = StereotypesHelper.getAppliedStereotypeByString(p, Resources.UI_PROPERTY);
 
 			prop.setColumnName(getTagValue(p, propStereotype, "columnName"));
@@ -221,6 +234,38 @@ public class ModelAnalyzer implements IAnalyzer {
 		}
 		return prop;		
 	}	
+
+	private FMMethod getMethodData(Operation p, Class cl) {
+		FMMethod method = new FMMethod(p.getName());
+		//String methodName = p.getName();
+		Stereotype methodStereotype = StereotypesHelper.getAppliedStereotypeByString(p, Resources.METHOD);
+		method.setRepository(Boolean.valueOf(getTagValue(p, methodStereotype, "repo")));
+		method.setService(Boolean.valueOf(getTagValue(p, methodStereotype, "service")));
+		method.setController(Boolean.valueOf(getTagValue(p, methodStereotype, "controller")));
+		method.setOperationType(getTagValue(p, methodStereotype, "operationType"));
+		method.setApiType(getTagValue(p, methodStereotype, "apiType"));
+		method.setApiEnpoint(getTagValue(p, methodStereotype, "apiEnpoint"));
+		
+		List<Parameter> params = p.getOwnedParameter();
+
+	    for (Parameter param : params) {
+	        String name = param.getName();
+	        Type type = param.getType();
+	        String direction = param.getDirection().toString(); // IN, OUT, INOUT, RETURN
+
+	        if (direction.equals("in") || direction.equals("out")) {
+	        	FMParameter parameter = new FMParameter(name, type.getName(), direction);
+	        	method.addParameter(parameter);
+	        } else if (direction.equals("return")) {
+	        	method.setReturnType(type.getName());
+	        }
+	        
+	        System.out.println("Parameter: " + name 
+	            + " Type: " + (type != null ? type.getName() : "unspecified") 
+	            + " Direction: " + direction);
+	    }
+	    return method;
+	}
 	
 	private Integer parseInt(String value) {
 		if (value == null)

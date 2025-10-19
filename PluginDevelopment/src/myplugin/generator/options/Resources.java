@@ -11,7 +11,8 @@ public class Resources {
 	public static final String APPSETTING = "Appsetting";
 	public static final String PROGRAM = "Program";
 	public static final String STARTUP = "Startup";
-	
+
+	public static final String METHOD = "Method";
 	
 	// GeneratorTypes
 	public static final String CONTEXT_GENERATOR = "ContextGenerator";
